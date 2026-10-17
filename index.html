@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ru">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#f8f7fc">
+ <meta name="description" content="Личный дневник чтения: записывай голос, получай оценку и зарабатывай награды за каждый зачтённый день.">
+ <title>Читаем и зарабатываем ✦</title>
+ <style>:root{
+  color-scheme:light;--ink:#2c2842;--muted:#756e86;--purple:#7655bf;--purple-dark:#5e429e;
+  --lav:#efebfa;--lav2:#f8f5ff;--line:#e8e3f1;--green:#288a59;--green-bg:#ddf6e8;
+  --gold:#efb95d;--white:#fff;--danger:#b45c69;--shadow:0 12px 36px rgba(64,45,102,.06);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f8f7fc;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.55}
+[hidden]{display:none!important}a{color:var(--purple)}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #c6b4fb;outline-offset:2px}
+#appScreen{min-height:100vh;padding-bottom:calc(115px + env(safe-area-inset-bottom))}
+.topbar{height:85px;background:#fffdfefa;border-bottom:1px solid #eee9f7;position:sticky;top:0;z-index:60;backdrop-filter:blur(18px)}
+.topbar-inner{max-width:1030px;padding:0 22px;margin:auto;height:100%;display:flex;align-items:center;gap:12px;justify-content:space-between}
+.brand{display:flex;gap:11px;align-items:center;min-width:0}.brand-icon{height:49px;width:49px;border-radius:16px;background:linear-gradient(130deg,#a587e2,#684cb4);display:grid;place-items:center;color:white;font-size:25px;box-shadow:0 7px 18px #9976d555}
+.brand-title{font-size:18px;font-weight:900;letter-spacing:-.5px;white-space:nowrap}.brand-sub{font-size:12px;color:var(--muted)}
+.top-actions{display:flex;align-items:center;gap:8px}.top-chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;background:#f3effb;border-radius:40px;font-size:12px;color:#7352b7;font-weight:700}
+.sync-dot{height:7px;width:7px;background:#39b778;border-radius:50%;display:inline-block;flex-shrink:0}.sync-dot.error{background:#db6976}.button-icon{height:38px;width:38px;border:1px solid #eee8f5;border-radius:12px;background:white;color:#665481;display:grid;place-items:center;font-size:17px}
+.container{width:min(100% - 36px,1000px);margin:0 auto}.main-heading{margin:25px 0 20px;display:flex;align-items:center;justify-content:space-between;gap:15px}
+.eyebrow{text-transform:uppercase;color:var(--purple);font-size:11px;font-weight:900;letter-spacing:.15em;margin-bottom:7px}
+h1,h2,h3,p{margin-top:0}h1{font-size:clamp(27px,4vw,35px);letter-spacing:-1.3px;line-height:1.12;margin-bottom:7px;font-weight:850}h2{font-size:19px;line-height:1.3;letter-spacing:-.5px;margin:0 0 14px;font-weight:850}h3{font-size:15px;margin:0;font-weight:800}.muted{color:var(--muted)}.lead{color:var(--muted);margin:0;line-height:1.55}
+.grid-page{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(290px,.82fr);gap:18px;align-items:start}
+.card{border:1px solid var(--line);border-radius:22px;background:#fff;box-shadow:var(--shadow);padding:22px;min-width:0}.card +.card{margin-top:18px}
+.purple-card{background:linear-gradient(135deg,#8668d0,#674aad);color:#fff;border-color:transparent;padding:26px;position:relative;overflow:hidden}
+.purple-card::after{content:'✦';position:absolute;font-size:150px;color:#ffffff0c;right:14px;top:-30px;pointer-events:none}
+.purple-card .muted,.purple-card .kicker{color:#e4dafb}.kicker{font-size:13px;font-weight:750;letter-spacing:.02em}
+.big-money{font-size:clamp(38px,5vw,53px);letter-spacing:-1.8px;line-height:1.05;font-weight:950;margin:8px 0 5px;font-variant-numeric:tabular-nums}
+.purple-foot{display:inline-flex;gap:7px;align-items:center;margin-top:13px;background:#ffffff22;border:1px solid #ffffff22;border-radius:15px;padding:8px 12px;font-size:12px;font-weight:700}
+.progress-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px}
+.progress-count{font-weight:900;color:var(--purple);font-variant-numeric:tabular-nums}.progress-squares{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:7px}
+.square{height:27px;border-radius:7px;border:1px solid #e5e0ed;background:#f2f0f7;transition:.2s}.square.filled{background:#45b979;border-color:#45b979;box-shadow:inset 0 -3px 0 #24905830}
+.progress-note{font-size:12px;color:var(--muted);margin:11px 0 0;line-height:1.5}
+.month-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:15px}.month-current{font-size:19px;font-weight:850;letter-spacing:-.4px;text-transform:capitalize}
+.month-controls{display:flex;gap:6px;align-items:center}.month-arrow{border:1px solid var(--line);background:#fff;width:36px;height:35px;border-radius:10px;font-size:19px;color:#644998}.month-today{border:1px solid #ece5f7;background:#f7f3ff;border-radius:10px;color:#7053af;font-size:12px;font-weight:850;padding:8px 10px}
+.weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.weekdays>div{text-align:center;font-weight:750;color:#91899e;font-size:12px;padding-bottom:11px}
+.day-cell{aspect-ratio:1/.92;background:#fbfafc;border:1px solid transparent;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-weight:800;color:#61596e;min-height:41px;position:relative}
+.day-cell:not(.empty):hover{background:#f3edff}.day-cell.empty{background:transparent}.day-cell.today{border-color:#d0b8f4;color:#6544a3;background:#faf7ff}
+.day-cell.awarded{border:2px solid #52bc86;background:#e9f9f0;color:#20734b}.day-num{font-size:13px;font-variant-numeric:tabular-nums}.day-dot{height:7px;width:7px;border-radius:50%;background:#50b77c}.day-dot.pending{background:#f1b65a}.day-cell.selected{outline:2px solid #8b72ce;outline-offset:2px}
+.today-marker{font-size:9px;color:#9e82d8;text-transform:uppercase;position:absolute;top:2px}
+.legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:13px}.legend span{display:inline-flex;align-items:center;gap:5px}.legend b{display:inline-block;height:8px;width:8px;border-radius:50%;background:#51b77b}.legend .amber{background:#efb357}
+.summary-table{display:grid;grid-template-columns:1fr;gap:0}.summary-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid #f0ecf6}.summary-row:last-child{border-bottom:none;padding-bottom:3px}.summary-row .label{font-size:13px;color:var(--muted)}.summary-row .value{font-weight:900;font-size:23px;color:#2a8c59;font-variant-numeric:tabular-nums}.summary-row .subtext{font-size:11px;color:#938b9f}
+.selected-day{margin-top:16px;padding:13px;border-radius:14px;background:#f7f4fd;color:#75678f;font-size:13px}.selected-day strong{color:#544474}
+.soft-callout{background:#fff9ee;border:1px solid #f7e9ca;padding:16px 18px;border-radius:17px;font-size:13px;color:#78654f;line-height:1.5}
+.reading-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(305px,.9fr);gap:18px;align-items:start}
+.reading-left{min-width:0}.reading-right{min-width:0}
+.player-dock{position:sticky;top:94px;z-index:50;background:linear-gradient(115deg,#f8f5ff,#fffdfb);border:1px solid #e3dbf5;box-shadow:0 15px 30px #674dad18;border-radius:19px;padding:15px 18px;margin:0 0 18px}
+.player-label{font-size:11px;color:#896fbc;text-transform:uppercase;letter-spacing:.1em;font-weight:850}.player-title{font-size:14px;font-weight:850;color:#524076;margin:2px 0 10px}
+audio{width:100%;height:43px;display:block}.player-empty{font-size:13px;color:#897b9e;background:#fff;border:1px dashed #e4d9f5;border-radius:11px;padding:13px}
+.recording-card{margin-bottom:18px}.record-controls{display:flex;gap:9px;flex-wrap:wrap;margin:16px 0 10px}.btn{padding:12px 16px;border:1px solid transparent;border-radius:13px;font-weight:850;background:#f2edf9;color:#6b4ca8;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-align:center;transition:transform .1s}.btn:hover{transform:translateY(-1px)}.btn.primary{color:white;background:#7755c2;box-shadow:0 8px 18px #7655bf22}.btn.primary:hover{background:#6847ae}.btn.green{color:#fff;background:#289564}.btn.danger{background:#fff0f1;border-color:#f5d9de;color:#b15563}.btn.ghost{background:white;border-color:var(--line);color:#6a568c}.btn.small{padding:8px 11px;font-size:12px;border-radius:10px}.btn.wide{width:100%}
+.recording-indicator{display:flex;align-items:center;gap:9px;color:#b05665;font-weight:750;font-size:13px}.pulse{width:10px;height:10px;border-radius:50%;background:#e36a74;box-shadow:0 0 0 6px #e36a7422;animation:pulse 1.2s infinite}@keyframes pulse{50%{box-shadow:0 0 0 10px #e36a7400}}
+.timer{font-variant-numeric:tabular-nums;font-size:18px;font-weight:950}.record-hint{font-size:12px;color:var(--muted);line-height:1.55}.record-hint strong{color:#574771}
+.passage{border:1px solid #eae5f4;border-radius:16px;overflow:hidden;margin-bottom:11px;background:white}.passage.active{border-color:#bdace4;box-shadow:0 4px 18px #b5a0db17}
+.passage-toggle{background:white;padding:16px;border:0;width:100%;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--ink)}
+.passage-title{font-size:15px;font-weight:850;letter-spacing:-.25px}.passage-level{font-size:11px;color:#8a8299;margin-top:4px}.passage-chevron{color:#9071c8;font-size:21px;font-weight:700}.passage-content{padding:0 17px 17px;border-top:1px solid #eee9f5}
+.read-text{font-size:var(--reading-font-size,19px);line-height:1.85;color:#393449;letter-spacing:.012em;max-height:min(48vh,500px);overflow:auto;padding:15px 8px 8px 0;scrollbar-color:#d3c5eb #f9f6ff}
+.read-text p{margin-bottom:17px}.read-text p:last-child{margin-bottom:4px}
+.passage-actions{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:14px;flex-wrap:wrap}.font-controls{display:flex;gap:6px;align-items:center}.font-controls button{background:#f3effa;border:1px solid #e9e1f4;border-radius:10px;padding:5px 11px;color:#6d52a4;font-weight:850}
+.records-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:13px}.count-bubble{font-size:11px;color:#6e53ac;background:#eee7fb;border-radius:50px;padding:5px 9px;font-weight:800}
+.record-list{display:grid;gap:10px;max-height:560px;overflow-y:auto;padding:2px 3px 2px 0}.record-row{padding:13px;border-radius:15px;border:1px solid #ebe5f5;background:#fefeff}
+.record-row.selected{border-color:#9c85d6;background:#faf7ff}.record-meta{display:flex;align-items:flex-start;gap:10px;justify-content:space-between}.rec-title{font-weight:850;font-size:13px}.rec-date{color:#8d839a;font-size:11px;margin-top:3px}.status{font-size:11px;font-weight:850;border-radius:50px;padding:5px 8px;white-space:nowrap;background:#fff2d9;color:#a67520}.status.good{background:#e3f6e9;color:#278152}.status.bad{background:#fff0f0;color:#a65865}.status.no-reward{background:#eeeaf4;color:#7a688e}
+.record-footer{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}.rate-group{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.rate{font-size:11px;font-weight:800;border-radius:8px;padding:6px 9px;background:white;border:1px solid #e5ddf0;color:#705a97}.rate.active{background:#eee5fc;border-color:#9876d4;color:#5d3d9c}.rate.bad.active{background:#ffebee;border-color:#d9929d;color:#9c4b59}.rate.great.active{background:#e1f6e8;border-color:#7fc99a;color:#207b4b}
+.empty-list{text-align:center;padding:28px 15px;color:#8b8297;font-size:13px}.empty-glyph{font-size:32px;display:block;margin-bottom:9px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:80;background:rgba(255,255,255,.96);border-top:1px solid #eee7f5;box-shadow:0 -9px 28px #54448612;padding:10px 14px calc(10px + env(safe-area-inset-bottom));backdrop-filter:blur(16px)}.bottom-inner{margin:auto;max-width:520px;display:grid;grid-template-columns:1fr 1fr;gap:12px}.tab{display:flex;flex-direction:column;align-items:center;gap:3px;color:#8a8098;padding:8px 12px;border-radius:15px;border:0;background:transparent;font-weight:850;font-size:13px}.tab .tab-icon{font-size:22px}.tab.active{background:#f0e9fc;color:#694bb1}
+.demo-banner{padding:9px 15px;background:#ffeed2;border-bottom:1px solid #f5d69d;color:#86602f;font-size:12px;text-align:center;font-weight:700}
+#authScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 20% 20%,#eadfff 0%,transparent 35%),radial-gradient(circle at 82% 82%,#fff0d7 0%,transparent 32%),#faf9ff}
+.auth-card{width:min(100%,425px);background:#fff;padding:32px;border:1px solid #eee9f6;border-radius:28px;box-shadow:0 25px 80px #51407b1a}.auth-mark{width:60px;height:60px;display:grid;place-items:center;border-radius:20px;background:linear-gradient(135deg,#b197e3,#7152b8);font-size:28px;color:white;margin-bottom:22px}.auth-card h1{font-size:30px}.field-label{display:block;font-size:12px;font-weight:850;color:#685978;margin:15px 0 7px}.field{width:100%;padding:13px 14px;border:1px solid #ded6eb;background:#fff;border-radius:12px;color:#302945;font-size:15px;resize:vertical}.field::placeholder{color:#ada5b7}.auth-error{font-size:13px;color:#b04151;background:#fff0f2;padding:11px 13px;border-radius:10px;margin:14px 0 4px}
+.modal-backdrop{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#231b3e82;padding:20px}.modal-card{width:min(100%,530px);max-height:86vh;overflow:auto;background:white;border-radius:22px;padding:27px;box-shadow:0 18px 50px #251e4445}.modal-card h2{margin-bottom:9px}.modal-close{float:right;background:#f3eefc;border:0;border-radius:10px;font-size:20px;padding:3px 12px;color:#7053a6}.modal-tip{font-size:13px;color:#786e87;line-height:1.55;margin-top:8px}.modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:19px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:110px;z-index:180;background:#312a46;color:white;padding:12px 17px;border-radius:13px;max-width:min(94vw,500px);font-size:13px;font-weight:750;box-shadow:0 8px 25px #312a4640;text-align:center}
+.settings-panel{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap}.section-tag{font-size:12px;color:#7c669b;font-weight:800;margin-bottom:10px}.dashed{border-style:dashed}.nowrap{white-space:nowrap}
+@media (max-width:790px){.grid-page,.reading-grid{grid-template-columns:1fr}.main-heading{margin-top:20px}.reading-right,.reading-left{display:contents}.player-dock{order:1;top:88px}.recording-card{order:2;margin-bottom:0}.reading-left>.card{order:3}.reading-right>.card:not(.recording-card){order:4}.progress-squares{grid-template-columns:repeat(15,minmax(0,1fr))}.topbar{height:77px}.brand-title{font-size:16px}}
+@media (max-width:520px){body{font-size:14px}.container{width:min(100% - 26px,1000px)}.card{padding:17px;border-radius:18px}.purple-card{padding:21px}.topbar-inner{padding:0 13px}.brand-icon{height:43px;width:43px;border-radius:13px}.brand-title{font-size:14px}.brand-sub{font-size:11px}.top-chip{font-size:11px;padding:6px 8px}.progress-squares{grid-template-columns:repeat(5,1fr);gap:7px}.square{height:25px}.day-cell{min-height:38px;border-radius:10px}.day-num{font-size:12px}.calendar-grid,.weekdays{gap:4px}.month-current{font-size:17px}.player-dock{top:85px;padding:12px 14px}.read-text{font-size:var(--reading-font-size,19px)}.auth-card{padding:24px}.main-heading h1{font-size:28px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.pulse{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+<section id="authScreen" hidden>
+ <div class="auth-card">
+  <div class="auth-mark" aria-hidden="true">📖</div>
+  <div class="eyebrow">Наш маленький проект</div>
+  <h1>Читаем и<br>зарабатываем ✦</h1>
+  <p class="lead">Читать каждый день — хорошая привычка. А маленькие достижения приятно отмечать!</p>
+  <p id="authError" class="auth-error" hidden role="alert"></p>
+  <form id="loginForm">
+   <label for="email" class="field-label">Общая почта</label>
+   <input class="field" type="email" id="email" name="email" required autocomplete="username" placeholder="you@example.com">
+   <label for="password" class="field-label">Пароль приложения</label>
+   <input class="field" type="password" id="password" name="password" required autocomplete="current-password" placeholder="Введи пароль">
+   <button class="btn primary wide" type="submit" style="margin-top:20px">Открыть мой дневник →</button>
+  </form>
+  <a id="notSetup" hidden href="./setup.php" class="btn ghost wide" style="margin-top:10px">Первоначальная настройка</a>
+  <p class="muted" style="font-size:11px;text-align:center;margin:17px 0 0">Общий вход — отдельный секретный код для оценки.</p>
+ </div>
+</section>
+<div id="appScreen" hidden>
+ <div id="demoBanner" class="demo-banner" hidden>ДЕМО · Пока облако не подключено, данные остаются только в этом браузере. Не используйте для настоящей отправки записей! Код демо: 2468.</div>
+ <header class="topbar">
+  <div class="topbar-inner">
+   <div class="brand"><div class="brand-icon" aria-hidden="true">✦</div><div><div class="brand-title">Читаем и зарабатываем</div><div class="brand-sub">Мой дневник чтения</div></div></div>
+   <div class="top-actions"><span class="top-chip" id="syncLabel"><span class="sync-dot"></span>Связь</span><button class="button-icon" data-action="role" id="roleBtn" aria-label="Режим взрослого" title="Режим взрослого">🔒</button><button class="button-icon" id="logoutBtn" data-action="logout" title="Выйти" aria-label="Выйти">⇥</button></div>
+  </div>
+ </header>
+ <main class="container" id="pageContent"></main>
+ <nav class="bottom-nav" aria-label="Основное меню"><div class="bottom-inner">
+  <button class="tab active" id="tabMoney" data-action="tab-money"><span class="tab-icon" aria-hidden="true">◉</span>Мои деньги</button>
+  <button class="tab" id="tabRead" data-action="tab-reading"><span class="tab-icon" aria-hidden="true">📖</span>Чтение</button>
+ </div></nav>
+</div>
+<div id="modal" class="modal-backdrop" hidden><div class="modal-card" role="dialog" aria-modal="true" aria-label="Настройки" id="modalContent"></div></div>
+<div id="toast" class="toast" hidden aria-live="polite"></div>
+<script src="./config.js"></script>
+<script src="./cloud.js"></script>
+<script>(() => {
+'use strict';
+const DEMO = !window.ReadingCloud?.active; // Unconfigured GitHub Pages displays a strictly local preview
+const PRICE=150, MONTH_LIMIT=15, MAX_SECONDS=180;
+const MONTHS=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+const $$=(s)=>document.querySelector(s);
+const safe=(text)=>String(text??'').replace(/[&<>"']/g, v=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[v]));
+const plural=(n,a,b,c)=>{const k=n%100,z=n%10;return (k>=11&&k<=14)?c:(z===1?a:z>=2&&z<=4?b:c)};
+const money=(n)=>new Intl.NumberFormat('ru-RU').format(n)+' ₽';
+const id=()=> 'r-'+(globalThis.crypto?.randomUUID?.()||Date.now().toString(36)+Math.random().toString(36).slice(2));
+const mockTexts=[
+ {id:'story-01',title:'Тайна старой карты',level:'Лёгкий · 1–2 минуты',text:'Однажды утром Артём нашёл в дедушкином шкафу старую карту. На пожелтевшей бумаге были нарисованы река, мост и одинокий дуб. В углу карты кто-то аккуратно написал: «Ищи там, где начинается тропинка».\n\nАртём вышел во двор. После ночного дождя трава ещё блестела, а в воздухе пахло мокрой землёй. За сараем действительно начиналась узкая тропинка. Мальчик прошёл вдоль забора, повернул к реке и увидел огромный дуб.\n\nПод деревом лежал небольшой металлический ящик. Артём осторожно открыл крышку. Внутри оказались старые фотографии, компас и записка: «Самое ценное сокровище — наши воспоминания».'},
+ {id:'story-02',title:'Почему звёзды мерцают',level:'Лёгкий · 1–2 минуты',text:'В ясную ночь звёзды кажутся маленькими огоньками. Иногда они словно подмигивают нам: то светят ярче, то на мгновение тускнеют. Но сами звёзды не включаются и не выключаются каждую секунду.\n\nВсё дело в земной атмосфере. Свет далёкой звезды проходит через слои воздуха, которые постоянно движутся и немного отличаются по температуре. Из-за этого лучи света слегка меняют направление. Нашему глазу кажется, что звезда дрожит и мерцает.\n\nЕсли посмотреть на звёзды с космического корабля, за пределами плотной атмосферы, они будут светить гораздо ровнее.'},
+ {id:'story-03',title:'Письмо из будущего',level:'Средний · 2–3 минуты',text:'Когда Лиза вернулась из школы, на письменном столе лежал конверт без марки и адреса. На нём было написано только её имя. Внутри находился лист бумаги с удивительным посланием: «Сегодня в пять часов ты сможешь изменить чей-то день».\n\nЛиза решила, что это шутка старшего брата. Однако ближе к вечеру она вспомнила о письме. Было без пяти пять, когда она вышла за хлебом. У подъезда соседка пыталась поднять тяжёлую сумку на ступеньки. Лиза предложила помощь, донесла продукты до квартиры и уже собиралась уходить.\n\nСоседка улыбнулась и сказала, что сегодня у неё был очень трудный день. «Ты появилась именно тогда, когда мне это было нужно», — добавила она.'},
+ {id:'story-04',title:'Как рождается книга',level:'Средний · 2–3 минуты',text:'Прежде чем книга окажется на полке, она проходит долгий путь. Сначала автор придумывает историю, собирает факты или записывает важные мысли. Первый вариант текста редко бывает идеальным: писатель перечитывает его, сокращает лишнее и меняет неудачные фразы.\n\nЗатем за работу берётся редактор. Он помогает сделать рассказ понятнее, замечает повторы и задаёт вопросы, которые автор мог упустить. Корректор внимательно проверяет орфографию и пунктуацию. Дизайнер подбирает шрифт и создаёт обложку, а верстальщик располагает текст на страницах.\n\nПосле этого готовый макет отправляют в типографию.'},
+ {id:'story-05',title:'Необычный музей',level:'Чуть сложнее · 2–3 минуты',text:'В субботу Максим отправился с отцом в музей науки. Снаружи здание казалось обычным, но внутри посетителей встречал огромный маятник, который медленно раскачивался под стеклянным куполом.\n\nВ первом зале можно было построить мост из деревянных деталей. Максим с удивлением заметил, что арочная конструкция выдерживает больший вес, чем прямая, если правильно распределить нагрузку. В другом зале посетители запускали маленькие вихри и наблюдали, как воздух поднимает лёгкие предметы.\n\nБольше всего Максиму понравилась комната оптических иллюзий.'}
+];
+const state={session:null,data:null,tab:'money',viewMonth:null,currentDate:null,selectedDate:null,openText:'story-01',activeText:'story-01',selectedAudio:null,
+             fontSize:Number(localStorage.getItem('reading_font_size')||19),draftTextId:null,recording:false,recorder:null,mediaStream:null,clock:null,startTime:0,
+             draft:null,draftURL:null,playURL:null,poll:null,busy:false,lastSnapshot:''};
+function mskDay(){ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Moscow',day:'2-digit',month:'2-digit',year:'numeric'}).formatToParts(new Date());const d={};for(const p of parts)d[p.type]=p.value;return `${d.year}-${d.month}-${d.day}`; }
+function fmtDate(date){const [y,m,d]=String(date).split('-');return `${+d} ${MONTHS[+m-1]||''} ${y||''}`;}
+function fmtTime(iso){try {return new Intl.DateTimeFormat('ru-RU',{timeZone:'Europe/Moscow',hour:'2-digit',minute:'2-digit'}).format(new Date(iso));}catch{return ''}}
+function mmLabel(ym){const [y,m]=ym.split('-');return `${MONTHS[+m-1]} ${y}`;}
+function earns(records){const perDay=new Map();for(const r of records){if(!['ok','great'].includes(r.rating))continue;const k=(r.reviewed_at||'9999')+'|'+r.id; if(!perDay.has(r.day)||k<perDay.get(r.day))perDay.set(r.day,k);}const grouped={};for(const [day,when] of perDay){(grouped[day.slice(0,7)]??=[]).push({day,when});}return Object.values(grouped).flatMap(arr=>arr.sort((a,b)=>a.when.localeCompare(b.when)).slice(0,15).map(v=>v.day)).sort();}
+function demoRead(){let obj;try{obj=JSON.parse(localStorage.getItem('reading_rewards_demo_v2')||'null')}catch{}if(!obj){obj={passages:mockTexts,recordings:[]};demoWrite(obj)}return obj;}
+function demoWrite(obj){localStorage.setItem('reading_rewards_demo_v2',JSON.stringify(obj));}
+let dbPromise;
+function demoDb(){ if(!('indexedDB'in window))return Promise.reject(new Error('Браузер не разрешает сохранять аудио локально.')); if(dbPromise)return dbPromise;
+  dbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open('reading_rewards_audio_v2',1);req.onupgradeneeded=()=>req.result.createObjectStore('files');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});return dbPromise; }
+async function demoStore(key,value){const db=await demoDb();return new Promise((resolve,reject)=>{const tr=db.transaction('files','readwrite');tr.objectStore('files').put(value,key);tr.oncomplete=resolve;tr.onerror=()=>reject(tr.error);});}
+async function demoRetrieve(key){const db=await demoDb();return new Promise((resolve,reject)=>{const req=db.transaction('files').objectStore('files').get(key);req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+async function api(action,options={}){
+ if(DEMO){const obj=demoRead();switch(action){
+  case 'session':return {configured:true,logged:true,admin:sessionStorage.getItem('demoAdmin')==='yes',csrf:'demo'};
+  case 'bootstrap':return {...obj,earned_days:earns(obj.recordings),server_today:mskDay(),storage_type:'demo'};
+  case 'admin':if(options.body?.pin!=='2468')throw Error('Для демо код взрослого: 2468');sessionStorage.setItem('demoAdmin','yes');return {admin:true};
+  case 'lock':sessionStorage.removeItem('demoAdmin');return {admin:false};
+  case 'passage':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const v=options.body;obj.passages.push({id:'p-'+id(),title:v.title,level:v.level,text:v.text});demoWrite(obj);return {ok:true};}
+  case 'review':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const r=obj.recordings.find(x=>x.id===options.body.id);if(!r)throw Error('Запись не найдена');r.rating=options.body.rating;r.reviewed_at=new Date().toISOString();demoWrite(obj);return {ok:true};}
+  case 'upload':{const blob=options.body.get('audio');const newId=id();await demoStore(newId,blob);obj.recordings.push({id:newId,passage_id:options.body.get('passage_id'),day:mskDay(),created_at:new Date().toISOString(),rating:null,reviewed_at:null,size:blob.size});demoWrite(obj);return {ok:true,id:newId};}
+  case 'storage':throw Error('В демо облако не подключается.');
+  case 'logout':sessionStorage.removeItem('demoAdmin');return {logged:true,admin:false,csrf:'demo'};
+  default:throw Error('Неизвестное действие в демо.');
+ }}
+ return window.ReadingCloud.api(action,options);
+}
+function setSync(ok=true){const el=$$('#syncLabel');if(!el)return;el.innerHTML=`<span class="sync-dot ${ok?'':'error'}"></span>${DEMO?'Демо · без облака':ok?'Синхронизировано':'Нет связи'}`;}
+let toastTimeout;
+function notify(msg){const el=$$('#toast');el.textContent=msg;el.hidden=false;clearTimeout(toastTimeout);toastTimeout=setTimeout(()=>el.hidden=true,4100);}
+function showLogin(err='',unconfigured=false){ $$('#authScreen').hidden=false; $$('#appScreen').hidden=true; $$('#authError').hidden=!err;$$('#authError').textContent=err;$$('#notSetup').hidden=!unconfigured;}
+function showApp(){ $$('#authScreen').hidden=true;$$('#appScreen').hidden=false;$$('#demoBanner').hidden=!DEMO;refreshChrome();render();setSync(true); }
+function refreshChrome(){const admin=!!state.session?.admin;$$('#roleBtn').textContent=admin?'🔓':'🔒';$$('#roleBtn').title=admin?'Закрыть режим оценки':'Ввести секретный код взрослого';$$('#logoutBtn').hidden=DEMO;}
+function render(){if(!state.data)return;
+ $$('#pageContent').innerHTML=state.tab==='money'?moneyHTML():readingHTML();
+ $$('#tabMoney').classList.toggle('active',state.tab==='money');$$('#tabRead').classList.toggle('active',state.tab==='reading');
+ $$('#tabMoney').setAttribute('aria-current',state.tab==='money'?'page':'false');$$('#tabRead').setAttribute('aria-current',state.tab==='reading'?'page':'false');
+ if(state.tab==='reading')updatePlayer();
+}
+function moneyHTML(){const date=state.currentDate,month=state.viewMonth||date.slice(0,7),eds=(state.data.earned_days||[]),inMonth=eds.filter(x=>x.startsWith(month));const todayPay=eds.includes(date)?PRICE:0;
+ const [year,monthIndex]=month.split('-').map(Number), first=(new Date(Date.UTC(year,monthIndex-1,1)).getUTCDay()+6)%7,days=new Date(Date.UTC(year,monthIndex,0)).getUTCDate();
+ const cells=[];for(let i=0;i<first;i++)cells.push('<div class="day-cell empty" aria-hidden="true"></div>');
+ for(let n=1;n<=days;n++){const day=`${year}-${String(monthIndex).padStart(2,'0')}-${String(n).padStart(2,'0')}`;const earned=eds.includes(day),rec=state.data.recordings.filter(x=>x.day===day),pend=rec.some(x=>x.rating==null);
+ cells.push(`<button class="day-cell ${earned?'awarded':''} ${day===date?'today':''} ${day===state.selectedDate?'selected':''}" data-action="select-day" data-day="${day}" aria-label="${safe(fmtDate(day))}${earned?', заработано 150 рублей':''}"><span class="day-num">${n}</span>${earned?'<span class="day-dot"></span>':pend?'<span class="day-dot pending"></span>':''}</button>`);}
+ const selected=state.selectedDate?.startsWith(month)?state.selectedDate:null;const selectedRecs=selected?state.data.recordings.filter(x=>x.day===selected):[];
+ const selectedText= selected ? `<div class="selected-day"><strong>${safe(fmtDate(selected))}:</strong> ${eds.includes(selected)?'150 ₽ начислено.':selectedRecs.some(x=>x.rating===null)?'Есть запись на проверке.':selectedRecs.length?'Начислений нет.':'Записей пока нет.'} ${selectedRecs.length?`<button class="btn small ghost" data-action="tab-reading">Перейти к записи →</button>`:''}</div>`:'';
+ return `<div class="main-heading"><div><div class="eyebrow">Маленькие шаги · большие результаты</div><h1>Мои деньги <span aria-hidden="true">✦</span></h1><p class="lead">Читай, отправляй запись и получай награду за старание.</p></div></div>
+ <div class="grid-page"><div>
+ <section class="card purple-card"><div class="kicker">Заработано за ${safe(mmLabel(month))}</div><div class="big-money">${money(inMonth.length*PRICE)}</div><div class="muted" style="font-size:13px">Из максимально возможных ${money(MONTH_LIMIT*PRICE)} в месяц</div><span class="purple-foot">✦ Один зачтённый день = 150 ₽</span></section>
+ <section class="card"><div class="progress-heading"><h2 style="margin:0">Мои 15 побед</h2><span class="progress-count">${inMonth.length} / ${MONTH_LIMIT}</span></div><div class="progress-squares" aria-label="Зачтено ${inMonth.length} дней из 15">${Array.from({length:MONTH_LIMIT},(_,i)=>`<span class="square ${i<inMonth.length?'filled':''}" title="День ${i+1}"></span>`).join('')}</div><p class="progress-note">Каждый зелёный квадратик — день, когда чтение получило оценку «Средне» или «Отлично».</p></section>
+ <section class="card"><div class="month-nav"><div class="month-current">${safe(mmLabel(month))}</div><div class="month-controls"><button class="month-arrow" data-action="month-prev" aria-label="Предыдущий месяц">‹</button><button class="month-today" data-action="month-now">Сейчас</button><button class="month-arrow" data-action="month-next" aria-label="Следующий месяц" ${month>=date.slice(0,7)?'disabled':''}>›</button></div></div>
+ <div class="weekdays">${['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<div>${x}</div>`).join('')}</div><div class="calendar-grid">${cells.join('')}</div>
+ <div class="legend"><span><b></b> День зачтён</span><span><b class="amber"></b> Ждёт проверки</span></div>${selectedText}</section></div>
+ <div><section class="card"><h2>Мой результат</h2><div class="summary-table"><div class="summary-row"><div><div class="label">Заработал за месяц</div><div class="subtext">${inMonth.length} ${plural(inMonth.length,'день','дня','дней')} из 15</div></div><span class="value">${money(inMonth.length*PRICE)}</span></div>
+ <div class="summary-row"><div><div class="label">Заработал сегодня</div><div class="subtext">${safe(fmtDate(date))}</div></div><span class="value">${money(todayPay)}</span></div></div></section>
+ <div class="soft-callout" style="margin-top:18px"><strong>Как получить зелёный кружок?</strong><p style="margin:8px 0 0">Открой «Чтение», выбери рассказ и запиши его голосом. После проверки появится отметка в календаре. За один день можно получить только одну награду.</p></div>
+ <section class="card" style="margin-top:18px"><h2>В этом месяце</h2><p class="muted" style="margin-bottom:5px">Осталось ${MONTH_LIMIT-inMonth.length} ${plural(MONTH_LIMIT-inMonth.length,'зачтённый день','зачтённых дня','зачтённых дней')}.</p><p class="muted" style="font-size:12px;margin:0">При смене месяца счёт начинается с нуля. Все прошлые результаты сохраняются.</p></section></div></div>`; }
+function recordStatus(rec){const earned=state.data.earned_days.includes(rec.day);
+ if(rec.rating==null)return {label:'Ожидает проверки',cls:''};
+ if(rec.rating==='bad')return {label:'Пока не зачтено',cls:'bad'};
+ if(earned){const qualified=state.data.recordings.filter(r=>r.day===rec.day&&['ok','great'].includes(r.rating));
+    qualified.sort((a,b)=>((a.reviewed_at||'9999')+'|'+a.id).localeCompare((b.reviewed_at||'9999')+'|'+b.id));
+    if(qualified[0]?.id===rec.id)return {label:rec.rating==='great'?'Отлично · +150 ₽':'Средне · +150 ₽',cls:'good'};
+    return {label:'День уже зачтён',cls:'good'};
+ }
+ return {label:rec.rating==='great'?'Отлично · лимит 15':'Средне · лимит 15',cls:'no-reward'};
+}
+function getTitle(passageId){return state.data.passages.find(p=>p.id===passageId)?.title||'Текст удалён';}
+function readingHTML(){const recs=state.data.recordings||[];const admin=state.session?.admin;const active=state.activeText;
+ const passages=state.data.passages.map(p=>{
+ const open=state.openText===p.id;
+ return `<div class="passage ${active===p.id?'active':''}"><button class="passage-toggle" data-action="toggle-text" data-id="${safe(p.id)}" aria-expanded="${open}"><span><span class="passage-title">${safe(p.title)}</span><span class="passage-level" style="display:block">${safe(p.level)}</span></span><span class="passage-chevron">${open?'⌃':'⌄'}</span></button>
+ ${open?`<div class="passage-content"><div class="read-text" style="--reading-font-size:${state.fontSize}px">${p.text.split(/\n\s*\n/).map(v=>`<p>${safe(v)}</p>`).join('')}</div><div class="passage-actions"><button class="btn ${p.id===active?'green':'primary'} small" data-action="choose-text" data-id="${safe(p.id)}">${p.id===active?'✓ Выбран для записи':'🎙 Читать этот текст'}</button><div class="font-controls"><span class="muted" style="font-size:11px">Шрифт</span><button data-action="font-down" aria-label="Уменьшить шрифт">А−</button><button data-action="font-up" aria-label="Увеличить шрифт">А+</button></div></div></div>`:''}</div>`;}).join('');
+ const rows=recs.length?recs.map(r=>{const status=recordStatus(r),selected=r.id===state.selectedAudio;
+ const ratings=admin?`<div class="rate-group" role="group" aria-label="Оценка чтения"><button class="rate bad ${r.rating==='bad'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="bad">Плохо</button><button class="rate ${r.rating==='ok'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="ok">Средне</button><button class="rate great ${r.rating==='great'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="great">Отлично</button></div>`:'';
+ return `<article class="record-row ${selected?'selected':''}"><div class="record-meta"><div style="min-width:0"><div class="rec-title">${safe(getTitle(r.passage_id))}</div><div class="rec-date">${safe(fmtDate(r.day))} · ${safe(fmtTime(r.created_at))} МСК</div></div><span class="status ${status.cls}">${safe(status.label)}</span></div>
+ <div class="record-footer"><button class="btn small ghost" data-action="listen" data-id="${safe(r.id)}">${selected?'♫ В плеере':'▶ Слушать'}</button></div>${ratings}</article>`;}).join(''):'<div class="empty-list"><span class="empty-glyph">🎧</span>Пока нет аудиозаписей.<br>Первая запись появится здесь после отправки.</div>';
+ const cur=state.selectedAudio?recs.find(r=>r.id===state.selectedAudio):null;
+ const draft=!state.selectedAudio&&state.draft;
+ const playerTitle=cur?`Запись · ${safe(getTitle(cur.passage_id))}`:draft?'Черновик готов · прослушай перед отправкой':'Аудиоплеер всегда под рукой';
+ return `<div class="main-heading"><div><div class="eyebrow">Читаем в своём темпе</div><h1>Чтение <span aria-hidden="true">📖</span></h1><p class="lead">Выбери интересный текст, прочитай вслух и отправь запись.</p></div></div>
+ <div class="reading-grid"><div class="reading-left"><div class="player-dock" id="playerDock"><div class="player-label">🎧 Мой аудиоплеер</div><div class="player-title">${playerTitle}</div>${cur||draft?'<audio id="audioPlayer" controls playsinline preload="metadata"></audio>':'<div class="player-empty">После записи или выбора сохранённого аудио здесь появится плеер.</div>'}</div>
+ <section class="card"><div class="records-heading"><h2 style="margin:0">Тексты для чтения</h2>${admin?'<button class="btn small ghost" data-action="new-passage">+ Добавить</button>':''}</div><div class="section-tag">Нажми на название, чтобы открыть текст. Он прокручивается отдельно от плеера.</div>${passages}</section></div>
+ <div class="reading-right"><section class="card recording-card"><h2>Моя новая запись</h2><p class="muted" style="font-size:13px">Выбран текст: <strong style="color:#655287">${safe(getTitle(active))}</strong></p>${state.draft?`<p class="record-hint">Черновик относится к тексту: <strong>${safe(getTitle(state.draftTextId||active))}</strong></p>`:''}
+ <div class="record-controls">
+ ${state.recording?'<button class="btn danger wide" data-action="stop-record">■ Завершить запись</button>':`<button class="btn primary wide" data-action="start-record" ${state.busy?'disabled':''}>🎙 Начать запись</button>`}
+ ${state.draft&&!state.recording?'<button class="btn green wide" data-action="send-record" >✓ Сохранить и отправить</button><button class="btn ghost small" data-action="preview">▶ Послушать черновик</button><button class="btn danger small" data-action="discard">Удалить черновик</button>':''}
+ </div>
+ <div id="recTimerWrap" ${state.recording?'':'hidden'} class="recording-indicator"><span class="pulse"></span>Идёт запись <span class="timer" id="recTimer">00:00</span></div>
+ <p class="record-hint" style="margin:12px 0 0">До 3 минут. Можно прослушать черновик перед отправкой. Запись появится у взрослого после успешной загрузки.</p>
+ <div class="record-hint" style="margin-top:10px"><label for="audioFile" style="text-decoration:underline;cursor:pointer">Микрофон недоступен? Выбрать готовое аудио</label><input type="file" id="audioFile" accept="audio/*,video/webm,video/mp4" hidden></div>
+ </section>
+ <section class="card"><div class="records-heading"><h2 style="margin:0">Записи</h2><span class="count-bubble">${recs.length}</span></div>
+ ${admin?'<p class="muted" style="font-size:12px">Ты в режиме взрослого: прослушай запись и выбери оценку.</p>':'<p class="muted" style="font-size:12px">После проверки здесь появится результат. Записи доступны на обоих устройствах.</p>'}
+ <div class="record-list">${rows}</div></section>
+ ${admin?`<section class="card"><h2>Настройки взрослого</h2><p class="muted" style="font-size:12px">Аудиохранилище: <strong>${state.data.storage_type==='supabase'?'Защищённое облако Supabase':state.data.storage_type==='demo'?'Демо · этот браузер':'Защищённое хранилище'}</strong></p><div class="settings-panel">${state.data.storage_type==='supabase'?'':`<button class="btn small ghost" data-action="storage">☁ Хранилище</button>`}<button class="btn small ghost" data-action="lock">🔒 Закрыть оценки</button></div></section>`:''}
+ </div></div>`; }
+async function updatePlayer(){const player=$$('#audioPlayer');if(!player)return;
+ if(state.playURL?.startsWith('blob:')&&state.playURL!==state.draftURL){URL.revokeObjectURL(state.playURL);state.playURL=null;}
+ if(state.selectedAudio){ if(DEMO){try{const blob=await demoRetrieve(state.selectedAudio);if(!blob)return;state.playURL=URL.createObjectURL(blob);if(player.isConnected)player.src=state.playURL;}catch(e){notify(e.message);}}
+ else {try{state.playURL=await window.ReadingCloud.audioURL(state.selectedAudio);if(player.isConnected)player.src=state.playURL;}catch(e){notify(e.message);}}
+ }else if(state.draftURL){player.src=state.draftURL;}
+}
+async function refreshData(first=false){if(state.recording)return;const oldDate=state.currentDate;const newData=await api('bootstrap');const stamp=JSON.stringify(newData);
+ state.data=newData;state.currentDate=newData.server_today;
+ if(!newData.passages.find(p=>p.id===state.activeText)){state.activeText=newData.passages[0]?.id||null;state.openText=state.activeText;}
+ if(!state.viewMonth||(oldDate && oldDate.slice(0,7)!==newData.server_today.slice(0,7)&&state.viewMonth===oldDate.slice(0,7)))state.viewMonth=newData.server_today.slice(0,7);
+ if(first||stamp!==state.lastSnapshot){state.lastSnapshot=stamp;render();}
+ setSync(true);
+}
+function modalOpen(markup){$$('#modalContent').innerHTML=markup;$$('#modal').hidden=false;setTimeout(()=>$$('#modalContent input')?.focus(),50);}
+function modalClose(){$$('#modal').hidden=true;$$('#modalContent').innerHTML='';}
+function modalPin(){modalOpen(`<button class="modal-close" data-action="close-modal" aria-label="Закрыть">×</button><div class="eyebrow">Только для взрослого</div><h2>Открыть оценки</h2><p class="modal-tip">Вход у вас общий, но ставить оценки может только тот, кто знает отдельный код.</p><form id="pinForm"><label class="field-label">Секретный код взрослого</label><input class="field" id="pinValue" type="password" inputmode="numeric" autocomplete="off" pattern="${DEMO?'[0-9]{4,10}':'[0-9]{6,10}'}" required><div class="modal-actions"><button class="btn ghost" type="button" data-action="close-modal">Отмена</button><button class="btn primary" type="submit">Открыть оценки</button></div></form>${DEMO?'<p class="modal-tip"><strong>Демо-код: 2468.</strong> В настоящем приложении ты задашь свой.</p>':''}`);}
+function modalPassage(){modalOpen(`<button class="modal-close" data-action="close-modal" aria-label="Закрыть">×</button><div class="eyebrow">Режим взрослого</div><h2>Добавить текст</h2><form id="passageForm"><label class="field-label">Название</label><input class="field" name="title" minlength="3" maxlength="100" required placeholder="Например, Загадка маяка"><label class="field-label">Уровень / продолжительность</label><input class="field" name="level" maxlength="70" value="Мой текст · 2 минуты"><label class="field-label">Сам текст</label><textarea class="field" name="text" minlength="40" maxlength="6000" rows="9" required placeholder="Вставь сюда рассказ для чтения..."></textarea><div class="modal-actions"><button class="btn ghost" type="button" data-action="close-modal">Отмена</button><button class="btn primary" type="submit">Добавить</button></div></form>`);}
+function modalStorage(){modalOpen(`<button class="modal-close" data-action="close-modal" aria-label="Закрыть">×</button><div class="eyebrow">Режим взрослого</div><h2>Яндекс Диск</h2><p class="modal-tip">Новые аудио можно сохранять в закрытой папке приложения на твоём Яндекс Диске. Нужен OAuth-токен приложения с правом <code>cloud_api:disk.app_folder</code>. Настоящий пароль от Яндекс-почты сюда вводить нельзя.</p><form id="storageForm"><label class="field-label">Новый OAuth-токен</label><input class="field" name="token" type="password" autocomplete="off" placeholder="Вставь токен"><p class="modal-tip">Сейчас: ${state.data.storage_type==='yandex'?'Яндекс Диск':'локальное хранилище сервера'}. Токен сохраняется только на сервере, не выдаётся устройствам.</p><div class="modal-actions"><button class="btn ghost" type="button" data-action="close-modal">Отмена</button><button class="btn primary" type="submit">Сохранить</button></div></form>`);}
+async function init(){ try{state.session=await api('session');if(!state.session.configured){showLogin('Сначала создай логин и пароль в бесплатном облаке Supabase (см. инструкцию).',true);return;}if(!state.session.logged){showLogin();return;}await refreshData(true);showApp();startPoll();}catch(e){showLogin(e.message);}}
+function startPoll(){clearInterval(state.poll);state.poll=setInterval(async()=>{if(document.hidden||state.busy||state.recording||!state.session?.logged)return;try{await refreshData();}catch{setSync(false);}},20000);}
+async function login(e){e.preventDefault();const err=$$('#authError');err.hidden=true;const f=e.currentTarget;const btn=f.querySelector('button[type="submit"]');btn.disabled=true;
+ try{state.session=await api('login',{method:'POST',body:{email:f.email.value,password:f.password.value}});await refreshData(true);showApp();startPoll();}catch(e){err.hidden=false;err.textContent=e.message;}finally{btn.disabled=false;}}
+async function switchTab(next){if(state.recording)await finishRecord();state.tab=next;render();window.scrollTo({top:0,behavior:'smooth'});}
+async function finishRecord(){if(!state.recording||!state.recorder)return;const rec=state.recorder;state.recording=false;clearInterval(state.clock);return new Promise(resolve=>{rec.addEventListener('stop',()=>{state.mediaStream?.getTracks().forEach(t=>t.stop());state.mediaStream=null;resolve();},{once:true});try{rec.stop();}catch{resolve();}});}
+async function startRecord(){if(state.recording)return;if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){notify('Этот браузер не поддерживает запись. Попробуй Яндекс Браузер или Chrome по HTTPS.');return;}
+ try{const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true},video:false});
+  const types=['audio/webm;codecs=opus','audio/mp4','audio/ogg;codecs=opus','audio/webm'];const mime=types.find(x=>MediaRecorder.isTypeSupported(x));
+  const rec=new MediaRecorder(stream,{...(mime?{mimeType:mime}:{}),audioBitsPerSecond:64000});const chunks=[];state.mediaStream=stream;state.recorder=rec;state.draft=null;state.draftTextId=state.activeText;
+  if(state.draftURL)URL.revokeObjectURL(state.draftURL);state.draftURL=null;state.selectedAudio=null;
+  rec.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
+  rec.onstop=()=>{state.mediaStream?.getTracks().forEach(t=>t.stop());state.mediaStream=null;state.recording=false;clearInterval(state.clock);
+    const blob=new Blob(chunks,{type:rec.mimeType||chunks[0]?.type||'audio/webm'});
+    if(blob.size<1000){notify('Запись слишком короткая. Попробуй ещё раз.');state.draft=null;}else if(blob.size>12582912){notify('Запись больше 12 МБ, сократи её.');state.draft=null;}
+    else{state.draft=blob;state.draftURL=URL.createObjectURL(blob);notify('Запись готова! Послушай её и нажми «Сохранить и отправить».');}
+    if(state.tab==='reading')render();};
+  state.recording=true;state.startTime=Date.now();rec.start(1000);render();
+  state.clock=setInterval(()=>{const seconds=Math.floor((Date.now()-state.startTime)/1000);const el=$$('#recTimer');if(el)el.textContent=`${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`;
+    if(seconds>=MAX_SECONDS){finishRecord();notify('Три минуты прошли — запись остановлена.');}},500);
+ }catch(e){state.recording=false;state.mediaStream?.getTracks().forEach(t=>t.stop());state.mediaStream=null;notify(e.name==='NotAllowedError'?'Разреши доступ к микрофону в настройках браузера.':'Не удалось включить микрофон: '+e.message);}
+}
+async function sendRecord(){if(!state.draft||state.busy)return;state.busy=true;render();
+ try{const ext=state.draft.type.includes('mp4')?'m4a':state.draft.type.includes('ogg')?'ogg':'webm';const form=new FormData();form.append('passage_id',state.draftTextId||state.activeText);form.append('audio',state.draft,`reading.${ext}`);
+ const sent=await api('upload',{method:'POST',body:form});state.draft=null;state.draftTextId=null;if(state.draftURL)URL.revokeObjectURL(state.draftURL);state.draftURL=null;state.selectedAudio=sent.id;await refreshData(true);notify('Запись отправлена! Теперь она ждёт проверки.');
+ }catch(e){notify(e.message);}finally{state.busy=false;render();}}
+function discard(){state.draft=null;state.draftTextId=null;state.selectedAudio=null;if(state.draftURL){URL.revokeObjectURL(state.draftURL);state.draftURL=null;}render();notify('Черновик удалён.');}
+async function evaluate(recId,rating){if(state.busy)return;state.busy=true;try{await api('review',{method:'POST',body:{id:recId,rating}});await refreshData(true);const result=state.data.recordings.find(x=>x.id===recId);const credited=state.data.earned_days.includes(result?.day);notify(rating==='bad'?'Пока без начисления. Можно записать ещё раз.':credited?'Оценка сохранена. День зачтён: +150 ₽.':'Оценка сохранена. Лимит 15 дней уже достигнут.');}catch(e){notify(e.message)}finally{state.busy=false;}}
+function goMonth(delta){const [y,m]=state.viewMonth.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1+delta,1));const next=dt.toISOString().slice(0,7);if(next>state.currentDate.slice(0,7))return;state.viewMonth=next;state.selectedDate=null;render();}
+async function respondClick(e){const button=e.target.closest('[data-action]');if(!button)return;const action=button.dataset.action;
+ try{switch(action){
+ case 'tab-money':await switchTab('money');break;case 'tab-reading':await switchTab('reading');break;
+ case 'month-prev':goMonth(-1);break;case 'month-next':goMonth(1);break;case 'month-now':state.viewMonth=state.currentDate.slice(0,7);state.selectedDate=null;render();break;
+ case 'select-day':state.selectedDate=state.selectedDate===button.dataset.day?null:button.dataset.day;render();break;
+ case 'toggle-text':state.openText=state.openText===button.dataset.id?null:button.dataset.id;render();break;
+ case 'choose-text':state.activeText=button.dataset.id;notify('Выбран текст «'+getTitle(state.activeText)+'».');render();break;
+ case 'font-down':state.fontSize=Math.max(16,state.fontSize-1);localStorage.setItem('reading_font_size',state.fontSize);render();break;
+ case 'font-up':state.fontSize=Math.min(28,state.fontSize+1);localStorage.setItem('reading_font_size',state.fontSize);render();break;
+ case 'start-record':await startRecord();break;case 'stop-record':await finishRecord();break;case 'send-record':await sendRecord();break;case 'discard':discard();break;
+ case 'preview':state.selectedAudio=null;render();$$('#audioPlayer')?.play().catch(()=>{});break;
+ case 'listen':state.selectedAudio=button.dataset.id;state.tab='reading';render();$$('#playerDock')?.scrollIntoView({behavior:'smooth',block:'nearest'});break;
+ case 'rate':await evaluate(button.dataset.id,button.dataset.rate);break;
+ case 'new-passage':if(state.session.admin)modalPassage();break;case 'storage':if(state.session.admin)modalStorage();break;
+ case 'close-modal':modalClose();break;
+ case 'role': if(state.session.admin){await api('lock',{method:'POST'});state.session.admin=false;refreshChrome();render();notify('Режим взрослого закрыт.');}else modalPin();break;
+ case 'lock':await api('lock',{method:'POST'});state.session.admin=false;refreshChrome();render();notify('Режим взрослого закрыт.');break;
+ case 'logout': if(state.recording)await finishRecord();state.session=await api('logout',{method:'POST'});clearInterval(state.poll);state.data=null;state.selectedAudio=null;showLogin();break;
+ default:break;
+ }}catch(err){notify(err.message);}
+}
+async function onForm(e){const form=e.target;
+ if(form.id==='loginForm'){await login(e);return;}
+ if(!['pinForm','passageForm','storageForm'].includes(form.id))return;
+ e.preventDefault();const btn=form.querySelector('[type="submit"]');btn.disabled=true;
+ try{
+  if(form.id==='pinForm'){await api('admin',{method:'POST',body:{pin:form.querySelector('#pinValue').value}});state.session.admin=true;modalClose();refreshChrome();render();notify('Режим взрослого открыт.');}
+  else if(form.id==='passageForm'){const data=new FormData(form);await api('passage',{method:'POST',body:{title:data.get('title'),level:data.get('level'),text:data.get('text')}});modalClose();await refreshData(true);notify('Новый текст добавлен на оба устройства.');}
+  else if(form.id==='storageForm'){const data=new FormData(form);await api('storage',{method:'POST',body:{token:data.get('token')}});modalClose();await refreshData(true);notify('Настройки хранилища сохранены.');}
+ }catch(err){notify(err.message);btn.disabled=false;}
+}
+async function onAudioChosen(e){if(e.target.id!=='audioFile')return;const file=e.target.files?.[0];if(!file)return;
+ if(file.size>12582912){notify('Аудиозапись должна быть меньше 12 МБ.');return;}if(file.size<1000){notify('Файл слишком маленький.');return;}
+ if(!file.type.startsWith('audio/')&&!['video/webm','video/mp4'].includes(file.type)){notify('Выбери файл с аудио.');return;}
+ state.draft=file;state.draftTextId=state.activeText;state.selectedAudio=null;if(state.draftURL)URL.revokeObjectURL(state.draftURL);state.draftURL=URL.createObjectURL(file);render();notify('Аудио добавлено. Послушай и отправь.');}
+document.addEventListener('submit',onForm);document.addEventListener('click',respondClick);document.addEventListener('change',onAudioChosen);
+$$('#modal').addEventListener('click',e=>{if(e.target.id==='modal')modalClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$$('#modal').hidden)modalClose();});
+document.addEventListener('visibilitychange',async()=>{if(!document.hidden&&state.session?.logged&&!state.recording){try{await refreshData()}catch{setSync(false)}}});
+init();
+})();
+</script>
+</body>
+</html>
