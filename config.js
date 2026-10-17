@@ -1,7 +1,4 @@
-/* Public configuration ONLY. These values may be published on GitHub Pages.
-   Paste Supabase Project URL and its PUBLISHABLE (or legacy anon) key below.
-   Never put a service_role/secret key, PIN, or email password here. */
 window.READING_CONFIG = {
-  url: '',
-  publishableKey: ''
+  url: 'https://styzyawkiippzbgsfywt.supabase.co',
+  publishableKey: 'sb_publishable_tS86MSon_wEN0efWLLEfVw_FK3ZOWNl'
 };
