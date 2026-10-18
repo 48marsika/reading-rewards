@@ -443,7 +443,8 @@ function demoRead(){
  const legacyIds=new Set(['story-01','story-02','story-03','story-04','story-05']);
  const inUse=new Set(recordings.map(r=>r.passage_id));
  const keep=previous.filter(p=>p&&typeof p.id==='string'&&!currentIds.has(p.id)&&(!legacyIds.has(p.id)||inUse.has(p.id)));
- const passages=[...mockTexts,...keep].map(p=>({...p,completed_at:p.completed_at||null}));
+ const completedById=new Map(previous.filter(p=>p&&p.id&&p.completed_at).map(p=>[p.id,p.completed_at]));
+  const passages=[...mockTexts,...keep].map(p=>({...p,completed_at:p.completed_at||completedById.get(p.id)||null}));
  const needsSave=!obj||JSON.stringify(previous)!==JSON.stringify(passages);
  obj={...(obj||{}),passages,recordings};
  if(needsSave)demoWrite(obj);
