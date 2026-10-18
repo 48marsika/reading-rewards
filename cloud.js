@@ -75,7 +75,7 @@ function earns(records){
 }
 async function bootstrap(){
  const [passages,records]=await Promise.all([
-  request('/rest/v1/rr_passages?select=id,title,level,text&order=created_at.asc&limit=2000'),
+  request('/rest/v1/rr_passages?select=id,title,level,text,completed_at&order=created_at.asc&limit=2000'),
   request('/rest/v1/rr_recordings?select=id,passage_id,reading_day,created_at,rating,rated_at,audio_path,audio_size&order=created_at.desc&limit=5000')
  ]);
  const list=records.map(r=>({id:r.id,passage_id:r.passage_id,day:r.reading_day,created_at:r.created_at,rating:r.rating,reviewed_at:r.rated_at,audio_path:r.audio_path,size:r.audio_size}));
@@ -122,6 +122,12 @@ async function review(id,rating){
  if(ok!==true){adminPIN='';throw Error('Проверка не прошла. Повтори вход в режим взрослого.');}
  return {ok:true};
 }
+async function completePassage(id){
+ if(!adminPIN)throw Error('Открой режим взрослого.');
+ const ok=await request('/rest/v1/rpc/rr_complete_passage',{method:'POST',data:{p_id:id,p_pin:adminPIN}});
+ if(ok!==true)throw Error('Нужна сохранённая оценка «Средне» или «Отлично».');
+ return {ok:true};
+}
 async function addPassage({title,level,text}){
  if(!adminPIN)throw Error('Сначала открой режим взрослого.');
  const id=await request('/rest/v1/rpc/rr_add_passage',{method:'POST',data:{p_title:title,p_level:level,p_text:text,p_pin:adminPIN}});
@@ -146,6 +152,7 @@ async function api(action,opts={}){
   case 'admin':return checkPin(data.pin);
   case 'review':return review(data.id,data.rating);
   case 'passage':return addPassage(data);
+  case 'complete-passage':return completePassage(data.id);
   case 'lock':adminPIN='';return {admin:false};
   case 'storage':throw Error('Хранение аудио уже настроено: закрытый Supabase Storage.');
   default:throw Error('Неизвестная команда: '+action);
