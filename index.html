@@ -132,6 +132,12 @@ audio{width:100%;height:43px;display:block}
 .topic-heading:first-child{margin-top:8px}
 .passage{border:1px solid #e0e8ef;border-radius:15px;overflow:hidden;margin-bottom:10px;background:white}
 .passage.active{border-color:#99b8ce;box-shadow:0 4px 16px rgba(46,102,142,.07)}
+.passage.completed{border-color:#9bceb3;background:#e3f5eb}
+.passage.completed .passage-toggle{background:#e3f5eb;color:#176b4c;opacity:1;cursor:default}
+.passage.completed .passage-title,.passage.completed .passage-chevron{color:#176b4c}
+.passage.completed .passage-level{color:#428667}
+.completed-heading{font-size:13px;color:#176b4c;font-weight:900;margin:22px 3px 12px}
+.btn.complete{background:#e0f3e8;border:1px solid #94ceb1;color:#146b4e}
 .passage-toggle{background:white;padding:16px;border:0;width:100%;min-height:55px;text-align:left;display:flex;justify-content:space-between;gap:10px;align-items:center;color:var(--ink)}
 .passage-toggle>span:first-child{min-width:0}
 .passage-title{font-size:15px;font-weight:830;letter-spacing:-.25px}
@@ -437,7 +443,7 @@ function demoRead(){
  const legacyIds=new Set(['story-01','story-02','story-03','story-04','story-05']);
  const inUse=new Set(recordings.map(r=>r.passage_id));
  const keep=previous.filter(p=>p&&typeof p.id==='string'&&!currentIds.has(p.id)&&(!legacyIds.has(p.id)||inUse.has(p.id)));
- const passages=[...mockTexts,...keep];
+ const passages=[...mockTexts,...keep].map(p=>({...p,completed_at:p.completed_at||null}));
  const needsSave=!obj||JSON.stringify(previous)!==JSON.stringify(passages);
  obj={...(obj||{}),passages,recordings};
  if(needsSave)demoWrite(obj);
@@ -456,7 +462,8 @@ async function api(action,options={}){
   case 'admin':if(options.body?.pin!=='2468')throw Error('Для демо код взрослого: 2468');sessionStorage.setItem('demoAdmin','yes');return {admin:true};
   case 'lock':sessionStorage.removeItem('demoAdmin');return {admin:false};
   case 'passage':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const v=options.body;obj.passages.push({id:'p-'+id(),title:v.title,level:v.level,text:v.text});demoWrite(obj);return {ok:true};}
-  case 'review':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const r=obj.recordings.find(x=>x.id===options.body.id);if(!r)throw Error('Запись не найдена');r.rating=options.body.rating;r.reviewed_at=new Date().toISOString();demoWrite(obj);return {ok:true};}
+  case 'complete-passage':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const p=obj.passages.find(x=>x.id===options.body.id);if(!p)throw Error('Текст не найден');if(!obj.recordings.some(r=>r.passage_id===p.id&&['ok','great'].includes(r.rating)))throw Error('Сначала оцени чтение');p.completed_at=p.completed_at||new Date().toISOString();demoWrite(obj);return {ok:true};}
+   case 'review':{if(sessionStorage.getItem('demoAdmin')!=='yes')throw Error('Нужен код взрослого');const r=obj.recordings.find(x=>x.id===options.body.id);if(!r)throw Error('Запись не найдена');r.rating=options.body.rating;r.reviewed_at=new Date().toISOString();demoWrite(obj);return {ok:true};}
   case 'upload':{const blob=options.body.get('audio');const newId=id();await demoStore(newId,blob);obj.recordings.push({id:newId,passage_id:options.body.get('passage_id'),day:mskDay(),created_at:new Date().toISOString(),rating:null,reviewed_at:null,size:blob.size});demoWrite(obj);return {ok:true,id:newId};}
   case 'storage':throw Error('В демо облако не подключается.');
   case 'logout':sessionStorage.removeItem('demoAdmin');return {logged:true,admin:false,csrf:'demo'};
@@ -506,13 +513,15 @@ function recordStatus(rec){const earned=state.data.earned_days.includes(rec.day)
 }
 function getTitle(passageId){return state.data.passages.find(p=>p.id===passageId)?.title||'Текст удалён';}
 function readingHTML(){const recs=state.data.recordings||[];const admin=state.session?.admin;const active=state.activeText;
- const passages=state.data.passages.map((p,i)=>{
- const open=state.openText===p.id;
- const topic=String(p.level||'Тексты').split(' · ')[0];
- const previous= i ? String(state.data.passages[i-1].level||'Тексты').split(' · ')[0] : null;
- const heading=topic!==previous ? `<div class="topic-heading">${safe(topic)}</div>` : '';
- return `${heading}<div class="passage ${active===p.id?'active':''}"><button class="passage-toggle" data-action="toggle-text" data-id="${safe(p.id)}" aria-expanded="${open}"><span><span class="passage-title">${safe(p.title)}</span><span class="passage-level" style="display:block">${safe(p.level)}</span></span><span class="passage-chevron">${open?'⌃':'⌄'}</span></button>
- ${open?`<div class="passage-content"><div class="read-text" style="--reading-font-size:${state.fontSize}px">${p.text.split(/\n\s*\n/).map(v=>`<p>${safe(v)}</p>`).join('')}</div><div class="passage-actions"><button class="btn ${p.id===active?'green':'primary'} small" data-action="choose-text" data-id="${safe(p.id)}">${p.id===active?'✓ Выбран для записи':'🎙 Читать этот текст'}</button><div class="font-controls"><span class="muted" style="font-size:11px">Шрифт</span><button data-action="font-down" aria-label="Уменьшить шрифт">А−</button><button data-action="font-up" aria-label="Увеличить шрифт">А+</button></div></div></div>`:''}</div>`;}).join('');
+ const available=state.data.passages.filter(p=>!p.completed_at),done=state.data.passages.filter(p=>!!p.completed_at);
+ const passages=[...available,...done].map((p,i,all)=>{
+  const completed=!!p.completed_at,open=!completed&&state.openText===p.id;
+  const topic=String(p.level||'Тексты').split(' · ')[0],previous=i?String(all[i-1].level||'Тексты').split(' · ')[0]:null;
+  const heading=completed?(i===available.length?`<div class="completed-heading">✓ Готово · ${done.length}</div>`:''):(topic!==previous?`<div class="topic-heading">${safe(topic)}</div>`:'');
+  const accepted=recs.some(r=>r.passage_id===p.id&&['ok','great'].includes(r.rating));
+  const finish=admin&&accepted?`<button class="btn small complete" data-action="complete-passage" data-id="${safe(p.id)}">✓ Готово</button>`:'';
+  return `${heading}<div class="passage ${completed?'completed':''} ${!completed&&active===p.id?'active':''}"><button class="passage-toggle" ${completed?'disabled aria-disabled="true"':'data-action="toggle-text"'} data-id="${safe(p.id)}" aria-expanded="${open}"><span><span class="passage-title">${completed?'✓ ':''}${safe(p.title)}</span><span class="passage-level" style="display:block">${completed?'Прочитано · завершено':safe(p.level)}</span></span><span class="passage-chevron">${completed?'Готово':open?'⌃':'⌄'}</span></button>
+  ${open?`<div class="passage-content"><div class="read-text" style="--reading-font-size:${state.fontSize}px">${p.text.split(/\n\s*\n/).map(v=>`<p>${safe(v)}</p>`).join('')}</div><div class="passage-actions"><button class="btn ${p.id===active?'green':'primary'} small" data-action="choose-text" data-id="${safe(p.id)}">${p.id===active?'✓ Выбран для записи':'🎙 Читать этот текст'}</button>${finish}<div class="font-controls"><span class="muted" style="font-size:11px">Шрифт</span><button data-action="font-down" aria-label="Уменьшить шрифт">А−</button><button data-action="font-up" aria-label="Увеличить шрифт">А+</button></div></div></div>`:''}</div>`;}).join('');
  const rows=recs.length?recs.map(r=>{const status=recordStatus(r),selected=r.id===state.selectedAudio;
  const ratings=admin?`<div class="rate-group" role="group" aria-label="Оценка чтения"><button class="rate bad ${r.rating==='bad'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="bad">Плохо</button><button class="rate ${r.rating==='ok'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="ok">Средне</button><button class="rate great ${r.rating==='great'?'active':''}" data-action="rate" data-id="${safe(r.id)}" data-rate="great">Отлично</button></div>`:'';
  return `<article class="record-row ${selected?'selected':''}"><div class="record-meta"><div style="min-width:0"><div class="rec-title">${safe(getTitle(r.passage_id))}</div><div class="rec-date">${safe(fmtDate(r.day))} · ${safe(fmtTime(r.created_at))} МСК</div></div><span class="status ${status.cls}">${safe(status.label)}</span></div>
@@ -522,7 +531,7 @@ function readingHTML(){const recs=state.data.recordings||[];const admin=state.se
  const playerTitle=cur?`Запись · ${safe(getTitle(cur.passage_id))}`:draft?'Черновик готов · прослушай перед отправкой':'Аудиоплеер всегда под рукой';
  return `<div class="main-heading"><div><div class="eyebrow">Читаем в своём темпе</div><h1>Чтение <span aria-hidden="true">📖</span></h1><p class="lead">Выбери интересный текст, прочитай вслух и отправь запись.</p></div></div>
  <div class="reading-grid"><div class="reading-left"><div class="player-dock" id="playerDock"><div class="player-label">🎧 Мой аудиоплеер</div><div class="player-title">${playerTitle}</div>${cur||draft?'<audio id="audioPlayer" controls playsinline preload="metadata"></audio>':'<div class="player-empty">После записи или выбора сохранённого аудио здесь появится плеер.</div>'}</div>
- <section class="card"><div class="records-heading"><h2 style="margin:0">Тексты для чтения</h2>${admin?'<button class="btn small ghost" data-action="new-passage">+ Добавить</button>':''}</div><div class="section-tag">15 новых текстов по 800 слов. Нажми на название — текст прокручивается отдельно от плеера. Можно читать по частям.</div>${passages}</section></div>
+ <section class="card"><div class="records-heading"><h2 style="margin:0">Тексты для чтения</h2>${admin?'<button class="btn small ghost" data-action="new-passage">+ Добавить</button>':''}</div><div class="section-tag">После оценки «Средне» или «Отлично» взрослый может отметить текст «Готово». Он станет зелёным и переместится вниз списка.</div>${passages}</section></div>
  <div class="reading-right"><section class="card recording-card"><h2>Моя новая запись</h2><p class="muted" style="font-size:13px">Выбран текст: <strong class="selected-text-name">${safe(getTitle(active))}</strong></p>${state.draft?`<p class="record-hint">Черновик относится к тексту: <strong>${safe(getTitle(state.draftTextId||active))}</strong></p>`:''}
  <div class="record-controls">
  ${state.recording?'<button class="btn danger wide" data-action="stop-record">■ Завершить запись</button>':`<button class="btn primary wide" data-action="start-record" ${state.busy?'disabled':''}>🎙 Начать запись</button>`}
@@ -545,7 +554,8 @@ async function updatePlayer(){const player=$$('#audioPlayer');if(!player)return;
 }
 async function refreshData(first=false){if(state.recording)return;const oldDate=state.currentDate;const newData=await api('bootstrap');const stamp=JSON.stringify(newData);
  state.data=newData;state.currentDate=newData.server_today;
- if(!newData.passages.find(p=>p.id===state.activeText)){state.activeText=newData.passages[0]?.id||null;state.openText=state.activeText;}
+ if(!newData.passages.find(p=>p.id===state.activeText&&!p.completed_at)){state.activeText=newData.passages.find(p=>!p.completed_at)?.id||null;state.openText=state.activeText;}
+  if(newData.passages.find(p=>p.id===state.openText)?.completed_at)state.openText=null;
  if(!state.viewMonth||(oldDate && oldDate.slice(0,7)!==newData.server_today.slice(0,7)&&state.viewMonth===oldDate.slice(0,7)))state.viewMonth=newData.server_today.slice(0,7);
  if(first||stamp!==state.lastSnapshot){state.lastSnapshot=stamp;render();}
  setSync(true);
@@ -583,20 +593,32 @@ async function sendRecord(){if(!state.draft||state.busy)return;state.busy=true;r
  }catch(e){notify(e.message);}finally{state.busy=false;render();}}
 function discard(){state.draft=null;state.draftTextId=null;state.selectedAudio=null;if(state.draftURL){URL.revokeObjectURL(state.draftURL);state.draftURL=null;}render();notify('Черновик удалён.');}
 async function evaluate(recId,rating){if(state.busy)return;state.busy=true;try{await api('review',{method:'POST',body:{id:recId,rating}});await refreshData(true);const result=state.data.recordings.find(x=>x.id===recId);const credited=state.data.earned_days.includes(result?.day);notify(rating==='bad'?'Пока без начисления. Можно записать ещё раз.':credited?'Оценка сохранена. День зачтён: +200 ₽.':'Оценка сохранена. Лимит 15 дней уже достигнут.');}catch(e){notify(e.message)}finally{state.busy=false;}}
+async function completePassage(passageId){
+ if(state.busy||!state.session?.admin)return;
+ const p=state.data.passages.find(x=>x.id===passageId);
+ if(!p||p.completed_at)return;
+ if(!state.data.recordings.some(r=>r.passage_id===passageId&&['ok','great'].includes(r.rating))){notify('Сначала оцени запись на «Средне» или «Отлично».');return;}
+ if(!confirm('Отметить «'+p.title+'» как готовый? Текст станет зелёным и больше не будет открываться.'))return;
+ state.busy=true;
+ try{await api('complete-passage',{method:'POST',body:{id:passageId}});state.openText=null;await refreshData(true);notify('Текст готов! Перемещён вниз списка.');}
+ catch(e){notify(e.message);}
+ finally{state.busy=false;}
+}
 function goMonth(delta){const [y,m]=state.viewMonth.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1+delta,1));const next=dt.toISOString().slice(0,7);if(next>state.currentDate.slice(0,7))return;state.viewMonth=next;state.selectedDate=null;render();}
 async function respondClick(e){const button=e.target.closest('[data-action]');if(!button)return;const action=button.dataset.action;
  try{switch(action){
  case 'tab-money':await switchTab('money');break;case 'tab-reading':await switchTab('reading');break;
  case 'month-prev':goMonth(-1);break;case 'month-next':goMonth(1);break;case 'month-now':state.viewMonth=state.currentDate.slice(0,7);state.selectedDate=null;render();break;
  case 'select-day':state.selectedDate=state.selectedDate===button.dataset.day?null:button.dataset.day;render();break;
- case 'toggle-text':state.openText=state.openText===button.dataset.id?null:button.dataset.id;render();break;
- case 'choose-text':state.activeText=button.dataset.id;notify('Выбран текст «'+getTitle(state.activeText)+'».');render();break;
+ case 'toggle-text':if(state.data.passages.find(p=>p.id===button.dataset.id)?.completed_at)break;state.openText=state.openText===button.dataset.id?null:button.dataset.id;render();break;
+ case 'choose-text':if(state.data.passages.find(p=>p.id===button.dataset.id)?.completed_at)break;state.activeText=button.dataset.id;notify('Выбран текст «'+getTitle(state.activeText)+'».');render();break;
  case 'font-down':state.fontSize=Math.max(16,state.fontSize-1);localStorage.setItem('reading_font_size',state.fontSize);render();break;
  case 'font-up':state.fontSize=Math.min(28,state.fontSize+1);localStorage.setItem('reading_font_size',state.fontSize);render();break;
  case 'start-record':await startRecord();break;case 'stop-record':await finishRecord();break;case 'send-record':await sendRecord();break;case 'discard':discard();break;
  case 'preview':state.selectedAudio=null;render();$$('#audioPlayer')?.play().catch(()=>{});break;
  case 'listen':state.selectedAudio=button.dataset.id;state.tab='reading';render();$$('#playerDock')?.scrollIntoView({behavior:'smooth',block:'nearest'});break;
  case 'rate':await evaluate(button.dataset.id,button.dataset.rate);break;
+  case 'complete-passage':await completePassage(button.dataset.id);break;
  case 'new-passage':if(state.session.admin)modalPassage();break;case 'storage':if(state.session.admin)modalStorage();break;
  case 'close-modal':modalClose();break;
  case 'role': if(state.session.admin){await api('lock',{method:'POST'});state.session.admin=false;refreshChrome();render();notify('Режим взрослого закрыт.');}else modalPin();break;
